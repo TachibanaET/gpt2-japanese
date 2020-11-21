@@ -2,3 +2,4 @@ tqdm
 numpy
 jaconv
 tensorflow-gpu==1.15.4
+gensim

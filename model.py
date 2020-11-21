@@ -29,11 +29,11 @@ def norm(x, scope, *, axis=-1, epsilon=1e-5):
     """Normalize to mean = 0, std = 1, then do a diagonal affine transform."""
     with tf.variable_scope(scope):
         n_state = x.shape[-1].value
-        g = tf.get_variable('g', [n_state], initializer=tf.constant_initializer(1))
-        b = tf.get_variable('b', [n_state], initializer=tf.constant_initializer(0))
+        g = tf.compat.v1.get_variable('g', [n_state], initializer=tf.constant_initializer(1))
+        b = tf.compat.v1.get_variable('b', [n_state], initializer=tf.constant_initializer(0))
         u = tf.reduce_mean(x, axis=axis, keepdims=True)
         s = tf.reduce_mean(tf.square(x-u), axis=axis, keepdims=True)
-        x = (x - u) * tf.rsqrt(s + epsilon)
+        x = (x - u) * tf.math.rsqrt(s + epsilon)
         x = x*g + b
         return x
 
@@ -121,7 +121,7 @@ def mlp(x, scope, n_state, *, hparams):
 
 
 def block(x, scope, *, past, hparams):
-    with tf.variable_scope(scope):
+    with tf.compat.v1.variable_scope(scope):
         nx = x.shape[-1].value
         a, present = attn(norm(x, 'ln_1'), 'attn', nx, past=past, hparams=hparams)
         x = x + a
@@ -144,14 +144,14 @@ def positions_for(tokens, past_length):
     return expand_tile(past_length + tf.range(nsteps), batch_size)
 
 
-def model(hparams, X, past=None, scope='model', reuse=tf.AUTO_REUSE):
-    with tf.variable_scope(scope, reuse=reuse):
+def model(hparams, X, past=None, scope='model', reuse=tf.compat.v1.AUTO_REUSE):
+    with tf.compat.v1.variable_scope(scope, reuse=reuse):
         results = {}
         batch, sequence = shape_list(X)
 
-        wpe = tf.get_variable('wpe', [hparams.n_ctx, hparams.n_embd],
+        wpe = tf.compat.v1.get_variable('wpe', [hparams.n_ctx, hparams.n_embd],
                              initializer=tf.random_normal_initializer(stddev=0.01))
-        wte = tf.get_variable('wte', [hparams.n_vocab, hparams.n_embd],
+        wte = tf.compat.v1.get_variable('wte', [hparams.n_vocab, hparams.n_embd],
                              initializer=tf.random_normal_initializer(stddev=0.02))
         past_length = 0 if past is None else tf.shape(past)[-2]
         h = tf.gather(wte, X) + tf.gather(wpe, positions_for(X, past_length))
@@ -163,7 +163,7 @@ def model(hparams, X, past=None, scope='model', reuse=tf.AUTO_REUSE):
         for layer, past in enumerate(pasts):
             h, present = block(h, 'h%d' % layer, past=past, hparams=hparams)
             if layer == 10:
-                tf.add_to_collection('checkpoints', h)
+                tf.compat.v1.add_to_collection('checkpoints', h)
             presents.append(present)
         results['present'] = tf.stack(presents, axis=1)
         h = norm(h, 'ln_f')
