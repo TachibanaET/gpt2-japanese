@@ -46,7 +46,7 @@ class fine_tune_test:
     self.model = GPT2LMHeadModel.from_pretrained(model_name)
     BATCH_SIZE = 18
     EPOCHS = 100
-    LEARNING_RATE = 3e-5
+    LEARNING_RATE = 1e-4
     WARMUP_STEPS = 5000
     MAX_SEQ_LEN = 256
 
@@ -96,7 +96,8 @@ class fine_tune_test:
         optimizer.zero_grad()
 
         ids = data['ids'].to(device)
-        outputs = self.model(ids, labels=ids)
+        mask = data['mask'].to(device)
+        outputs = self.model(ids, labels=ids, attention_mask=mask)
         loss, logits = outputs[:2]
         loss.sum().backward()
         sum_loss += loss.sum().item()

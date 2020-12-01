@@ -166,13 +166,15 @@ def origin():
 
 if __name__ == '__main__':
   tokenizer = BPEEncoder_ja(bpe, emoji)
-  model_path = './trained_models/best.pt'
-  model = GPT2LMHeadModel.from_pretrained('gpt2-pytorch-model-medium')
-  model.resize_token_embeddings(len(tokenizer))
+  ids = [0,0,0,0,1,2]
+  print(tokenizer.decode(ids))
+  # model_path = './trained_models/best.pt'
+  # model = GPT2LMHeadModel.from_pretrained('gpt2-pytorch-model-medium')
+  # model.resize_token_embeddings(len(tokenizer))
 
-  device = torch.device('cuda:2')
-  model.load_state_dict(torch.load(model_path, map_location=device), strict=False)
-  article_generate(model, tokenizer, 1, 5, 0, device)
+  # device = torch.device('cuda:2')
+  # model.load_state_dict(torch.load(model_path, map_location=device), strict=False)
+  # article_generate(model, tokenizer, 1, 5, 0, device)
   
   # try:
   #   article_generate(model, tokenizer, 1, 5, 0, device)
