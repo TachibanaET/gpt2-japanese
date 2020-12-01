@@ -1,1 +1,10 @@
 __pycache__
+gpt2ja-medium
+ja-117M
+origin-gpt2
+origin-gpt2-medium
+gpt2-pytorch-model-medium/pytorch_model.bin
+gpt2-pytorch-model-small/pytorch_model.bin
+dataset
+wandb
+trained_models

@@ -27,7 +27,7 @@ class BPEEncoder_ja:
         content = self.content_repatter6.sub("<PRICE>" ,content)
         return content
 
-    def encode(self, text, clean=False):
+    def encode(self, text, clean=False, padding=False, max_len=128):
         text = text.replace(' ', '<SP>')
         text = text.replace('　', '<SP>')
         text = text.replace('\r\n', '<BR>')
@@ -59,7 +59,20 @@ class BPEEncoder_ja:
                 for i in wd.encode('utf-8'):
                     result.append(self.bpe.index('<|byte%d|>'%i))
                 pos = end
-        return result
+        
+        attention_mask = [1] * len(result)
+
+        if(padding):
+            if len(result) > max_len:
+                result = result[:max_len]
+                attention_mask = attention_mask[:max_len]
+            else:
+                attention_mask += [0] * (max_len - len(result))
+                result += [0] * (max_len - len(result))
+        return {
+            'input_ids' : result,
+            'attention_mask' : attention_mask
+        }
 
     def decode(self, tokens, breakline='\n'):
         words = []
